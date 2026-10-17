@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const db = require('./database/db');
+const { initDatabase, getDb, saveDatabase } = require('./database/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -87,14 +87,17 @@ app.post('/api/history', (req, res) => {
   }
 
   try {
-    const stmt = db.prepare(`
-      INSERT INTO search_history (city_name, country, latitude, longitude, temperature, weather_code)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
+    const db = getDb();
+    
+    db.run(
+      `INSERT INTO search_history (city_name, country, latitude, longitude, temperature, weather_code, search_date) 
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+      [city_name, country, latitude, longitude, temperature, weather_code]
+    );
+    
+    saveDatabase();
 
-    const result = stmt.run(city_name, country, latitude, longitude, temperature, weather_code);
-
-    res.json({ success: true, id: result.lastInsertRowid });
+    res.json({ success: true });
   } catch (error) {
     console.error('History save error:', error);
     res.status(500).json({ error: 'Ошибка сохранения в историю' });
@@ -104,13 +107,27 @@ app.post('/api/history', (req, res) => {
 // Получение истории поисков
 app.get('/api/history', (req, res) => {
   try {
-    const stmt = db.prepare(`
+    const db = getDb();
+    
+    const result = db.exec(`
       SELECT * FROM search_history 
       ORDER BY search_date DESC 
       LIMIT 10
     `);
 
-    const history = stmt.all();
+    const history = result.length > 0 ? result[0].values.map(row => {
+      return {
+        id: row[0],
+        city_name: row[1],
+        country: row[2],
+        latitude: row[3],
+        longitude: row[4],
+        temperature: row[5],
+        weather_code: row[6],
+        search_date: row[7]
+      };
+    }) : [];
+
     res.json(history);
   } catch (error) {
     console.error('History fetch error:', error);
@@ -123,10 +140,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Инициализация БД при запуске
-const initDb = () => {
+// Инициализация БД и запуск сервера
+async function startServer() {
   try {
-    db.exec(`
+    await initDatabase();
+    const db = getDb();
+    
+    // Создаём таблицу если её нет
+    db.run(`
       CREATE TABLE IF NOT EXISTS search_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         city_name TEXT NOT NULL,
@@ -135,19 +156,20 @@ const initDb = () => {
         longitude REAL NOT NULL,
         temperature REAL,
         weather_code INTEGER,
-        search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        search_date TEXT
       );
-
-      CREATE INDEX IF NOT EXISTS idx_search_date ON search_history(search_date DESC);
     `);
+    
+    saveDatabase();
     console.log('База данных готова');
+    
+    app.listen(PORT, () => {
+      console.log(`Сервер запущен на http://localhost:${PORT}`);
+    });
   } catch (error) {
-    console.error('Ошибка инициализации БД:', error);
+    console.error('Ошибка запуска сервера:', error);
+    process.exit(1);
   }
-};
+}
 
-initDb();
-
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`);
-});
+startServer();

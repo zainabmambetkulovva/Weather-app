@@ -93,11 +93,11 @@
 ### Backend
 - Node.js (с нативным fetch API)
 - Express.js v4.18.2
-- Better-SQLite3 v9.2.2
+- sql.js v1.10.3 (SQLite на JavaScript)
 - dotenv v16.3.1
 
 ### База данных
-- SQLite3 (встраиваемая, файловая)
+- SQLite3 через sql.js (встраиваемая, файловая, не требует компиляции)
 - Таблица: search_history
 - Индексация по дате поиска
 
