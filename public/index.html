@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App - Прогноз погоды</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌤️ Weather App</h1>
+            <p class="subtitle">Актуальная информация о погоде в вашем городе</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="cityInput" 
+                    placeholder="Введите название города..." 
+                    autocomplete="off"
+                >
+                <button id="searchBtn">Поиск</button>
+            </div>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+
+        <!-- Индикатор загрузки -->
+        <div id="loader" class="loader hidden">
+            <div class="spinner"></div>
+            <p>Загрузка данных...</p>
+        </div>
+
+        <!-- Основная информация о погоде -->
+        <div id="weatherContainer" class="weather-container hidden">
+            <!-- Текущая погода -->
+            <div class="current-weather">
+                <div class="location-info">
+                    <h2 id="cityName">-</h2>
+                    <p id="currentDate">-</p>
+                </div>
+                
+                <div class="weather-main">
+                    <div class="weather-icon-container">
+                        <div id="weatherIcon" class="weather-icon">☀️</div>
+                    </div>
+                    <div class="temperature-info">
+                        <div class="temperature" id="temperature">--°</div>
+                        <div class="weather-description" id="weatherDescription">-</div>
+                    </div>
+                </div>
+
+                <!-- Дополнительная информация -->
+                <div class="weather-details">
+                    <div class="detail-card">
+                        <div class="detail-icon">🌡️</div>
+                        <div class="detail-info">
+                            <span class="detail-label">Ощущается как</span>
+                            <span class="detail-value" id="feelsLike">--°</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">💨</div>
+                        <div class="detail-info">
+                            <span class="detail-label">Ветер</span>
+                            <span class="detail-value" id="windSpeed">-- км/ч</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">💧</div>
+                        <div class="detail-info">
+                            <span class="detail-label">Влажность</span>
+                            <span class="detail-value" id="humidity">--%</span>
+                        </div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-icon">🧭</div>
+                        <div class="detail-info">
+                            <span class="detail-label">Направление</span>
+                            <span class="detail-value" id="windDirection">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Прогноз на неделю -->
+            <div class="forecast-section">
+                <h3>Прогноз на 7 дней</h3>
+                <div id="forecastContainer" class="forecast-container">
+                    <!-- Карточки прогноза добавляются динамически -->
+                </div>
+            </div>
+        </div>
+
+        <!-- История поисков -->
+        <div id="historySection" class="history-section hidden">
+            <h3>История поисков</h3>
+            <div id="historyContainer" class="history-container">
+                <!-- История добавляется динамически -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
